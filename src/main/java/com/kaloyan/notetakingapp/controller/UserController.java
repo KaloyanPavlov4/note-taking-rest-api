@@ -6,7 +6,6 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.security.Principal;
 import java.util.UUID;
 
 @RestController
@@ -33,13 +32,13 @@ public class UserController {
 
     //Change user's username. Checks if the currently logged-in user is the same that is being changed. If not returns 403 Forbidden
     @PatchMapping("/{id}")
-    public Mono<User> changeUsername(@PathVariable("id") UUID userId, @RequestBody String username, Principal principal) {
+    public Mono<User> changeUsername(@PathVariable("id") UUID userId, @RequestBody String username) {
         return Mono.empty();
     }
 
     //Delete user. Checks if the currently logged-in user is the same that is being deleted. If not returns 403 Forbidden
     @DeleteMapping("/{id}")
-    public Mono<User> deleteUser(@PathVariable("id") UUID userId, Principal principal) {
+    public Mono<User> deleteUser(@PathVariable("id") UUID userId) {
         return Mono.empty();
     }
 }
