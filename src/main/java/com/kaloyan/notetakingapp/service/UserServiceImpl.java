@@ -35,24 +35,25 @@ public class UserServiceImpl implements UserService {
         return userRepository.save(user);
     }
 
+    //Maybe not best way to return deleted user
     @Override
     public Mono<User> deleteById(UUID uuid) {
         String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
-        userRepository.findById(uuid).flatMap(u -> {
+        return userRepository.findById(uuid).flatMap(u -> {
                     if (u.getUsername().equals(currentUsername)) {
                         SecurityContextHolder.getContext().setAuthentication(null);
-                        return userRepository.deleteById(uuid);
+                        userRepository.deleteById(uuid);
+                        return Mono.just(u);
                     }
                     else throw new DifferentUserException("Users are forbidden from deleting other Users!");
                 }
         );
-        return null;
     }
 
     @Override
     public Mono<User> patchUsername(UUID uuid, String username) {
         String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
-        userRepository.findById(uuid).flatMap(u -> {
+        return userRepository.findById(uuid).flatMap(u -> {
             if (u.getUsername().equals(currentUsername)) {
                 u.setUsername(username);
                 SecurityContextHolder.getContext().setAuthentication(null);
@@ -60,6 +61,5 @@ public class UserServiceImpl implements UserService {
             }
             else throw new DifferentUserException("Users are forbidden from changing other Users!");
         });
-        return null;
     }
 }

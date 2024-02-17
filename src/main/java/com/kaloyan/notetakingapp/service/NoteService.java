@@ -8,7 +8,7 @@ import reactor.core.publisher.Mono;
 import java.util.UUID;
 
 public interface NoteService {
-    Mono<Note> findById();
+    Mono<Note> findById(UUID uuid);
 
     Flux<Note> findAll(Pageable pageable);
 
