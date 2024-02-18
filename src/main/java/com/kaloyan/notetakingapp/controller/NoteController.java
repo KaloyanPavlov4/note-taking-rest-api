@@ -1,13 +1,11 @@
 package com.kaloyan.notetakingapp.controller;
 
-
 import com.kaloyan.notetakingapp.model.Note;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.security.Principal;
 import java.util.UUID;
 
 @RestController
@@ -28,7 +26,7 @@ public class NoteController {
 
     //Adds note and associates it with currently logged-in user.
     @PostMapping
-    public Mono<Note> addNote(@RequestBody Note note){
+    public Mono<Note> addNote(@RequestBody Note note) {
         return Mono.empty();
     }
 

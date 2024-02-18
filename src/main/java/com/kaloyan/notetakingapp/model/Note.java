@@ -1,6 +1,5 @@
 package com.kaloyan.notetakingapp.model;
 
-
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
