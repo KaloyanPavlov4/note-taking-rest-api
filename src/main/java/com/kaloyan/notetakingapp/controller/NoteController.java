@@ -28,19 +28,19 @@ public class NoteController {
 
     //Adds note and associates it with currently logged-in user.
     @PostMapping
-    public Mono<Note> addNote(@RequestBody Note note, Principal principal) {
+    public Mono<Note> addNote(@RequestBody Note note){
         return Mono.empty();
     }
 
     //Edits note. Checks if it belongs to currently logged-in user. If not returns 403 forbidden
     @PutMapping("/{id}")
-    public Mono<Note> editNote(@PathVariable("id") UUID noteId, @RequestBody Note note, Principal principal) {
+    public Mono<Note> editNote(@PathVariable("id") UUID noteId, @RequestBody Note note) {
         return Mono.empty();
     }
 
     //Deletes note. Checks if it belongs to currently logged-in user. If not returns 403 forbidden
     @DeleteMapping
-    public Mono<Note> deleteNote(@PathVariable("id") UUID noteId, Principal principal) {
+    public Mono<Note> deleteNote(@PathVariable("id") UUID noteId) {
         return Mono.empty();
     }
 }
