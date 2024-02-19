@@ -9,12 +9,14 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Set;
+import java.util.List;
 import java.util.UUID;
+
 
 @Getter
 @Setter
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
 @Table(name = "users")
 public class User implements UserDetails {
@@ -24,10 +26,17 @@ public class User implements UserDetails {
     private String username;
     private String email;
     private String password;
-    @Transient
-    private Set<Note> notes;
-    @Transient
     private Role role;
+    @Transient
+    private List<Note> notes;
+
+    public User(UUID id, String username, String email, String password, Role role) {
+        this.id = id;
+        this.username = username;
+        this.email = email;
+        this.password = password;
+        this.role = role;
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

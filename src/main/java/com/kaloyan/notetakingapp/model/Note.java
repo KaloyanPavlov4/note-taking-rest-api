@@ -10,6 +10,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
 @Table(name = "notes")
 public class Note {
@@ -21,4 +22,11 @@ public class Note {
     private UUID userId;
     @Transient
     private User user;
+
+    public Note(UUID id, String title, String text, UUID userId) {
+        this.id = id;
+        this.title = title;
+        this.text = text;
+        this.userId = userId;
+    }
 }
