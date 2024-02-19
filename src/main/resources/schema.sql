@@ -1,0 +1,2 @@
+create table if not exists users(id uuid default random_uuid() primary key, username varchar(255), email varchar(255),password varchar(255), role varchar(255));
+create table if not exists notes(id uuid default random_uuid() primary key, title varchar(255), text varchar(255), user_Id uuid, foreign key(user_Id) references users(id));
