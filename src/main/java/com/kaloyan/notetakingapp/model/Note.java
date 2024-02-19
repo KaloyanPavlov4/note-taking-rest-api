@@ -1,30 +1,32 @@
 package com.kaloyan.notetakingapp.model;
 
-import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
+import org.springframework.data.relational.core.mapping.Table;
 
 import java.util.UUID;
 
 @Getter
 @Setter
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
-@Entity
 @Table(name = "notes")
 public class Note {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
-
-    @Column(nullable = false)
     private String title;
-
-    @Column(nullable = false)
     private String text;
-
-    @ManyToOne
-    @JoinColumn(name="user_id", nullable=false)
+    private UUID userId;
+    @Transient
     private User user;
+
+    public Note(UUID id, String title, String text, UUID userId) {
+        this.id = id;
+        this.title = title;
+        this.text = text;
+        this.userId = userId;
+    }
 }

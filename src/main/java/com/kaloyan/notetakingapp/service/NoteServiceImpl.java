@@ -7,6 +7,7 @@ import com.kaloyan.notetakingapp.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -30,21 +31,21 @@ public class NoteServiceImpl implements NoteService{
 
     @Override
     public Flux<Note> findAll(Pageable pageable) {
-        return noteRepository.findAll().skip(pageable.getPageNumber() * pageable.getPageSize()).take(pageable.getPageSize());;
+        return noteRepository.findAll().skip(pageable.getPageNumber() * pageable.getPageSize()).take(pageable.getPageSize());
     }
 
     @Override
-    public Mono<Note> save(Note note) {
-        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
-        return userRepository.findByUsername(currentUsername).flatMap(u -> {
+    public Mono<Note> save(Note note, Authentication authentication) {
+        return userRepository.findByUsername(authentication.getName()).flatMap(u -> {
+            note.setUserId(u.getId());
             note.setUser(u);
             return noteRepository.save(note);
         });
     }
 
     @Override
-    public Mono<Note> edit(UUID uuid, Note note) {
-        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+    public Mono<Note> edit(UUID uuid, Note note, Authentication authentication) {
+        String currentUsername = authentication.getName();
         return noteRepository.findById(uuid).flatMap(n -> {
             if (!currentUsername.equals(n.getUser().getUsername())){
                 throw new DifferentUserException("Users can't edit other users' notes!");
@@ -55,8 +56,8 @@ public class NoteServiceImpl implements NoteService{
     }
 
     @Override
-    public Mono<Note> delete(UUID uuid) {
-        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+    public Mono<Note> delete(UUID uuid, Authentication authentication) {
+        String currentUsername = authentication.getName();
         return noteRepository.findById(uuid).flatMap(n -> {
             if (!currentUsername.equals(n.getUser().getUsername())){
                 throw new DifferentUserException("Users can't delete other users' notes!");
