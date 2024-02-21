@@ -8,7 +8,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -17,21 +16,29 @@ import java.util.UUID;
 
 @AllArgsConstructor
 @Service
-public class NoteServiceImpl implements NoteService{
+public class NoteServiceImpl implements NoteService {
     @Autowired
     UserRepository userRepository;
 
     @Autowired
     NoteRepository noteRepository;
 
+    private Mono<Note> noteWithUser(UUID noteId) {
+        return noteRepository.findById(noteId).flatMap(note -> userRepository.findById(note.getUserId()).map(user -> {
+            note.setUser(user);
+            return note;
+        }));
+    }
+
     @Override
     public Mono<Note> findById(UUID uuid) {
-        return noteRepository.findById(uuid);
+        return noteWithUser(uuid);
     }
 
     @Override
     public Flux<Note> findAll(Pageable pageable) {
-        return noteRepository.findAll().skip(pageable.getPageNumber() * pageable.getPageSize()).take(pageable.getPageSize());
+        return noteRepository.findAll().flatMap(note -> noteWithUser(note.getId()))
+                .skip(pageable.getPageNumber() * pageable.getPageSize()).take(pageable.getPageSize());
     }
 
     @Override
@@ -46,24 +53,25 @@ public class NoteServiceImpl implements NoteService{
     @Override
     public Mono<Note> edit(UUID uuid, Note note, Authentication authentication) {
         String currentUsername = authentication.getName();
-        return noteRepository.findById(uuid).flatMap(n -> {
-            if (!currentUsername.equals(n.getUser().getUsername())){
+        return userRepository.findByUsername(currentUsername).flatMap(user -> noteRepository.findById(uuid).flatMap(n -> {
+            if (!currentUsername.equals(user.getUsername())) {
                 throw new DifferentUserException("Users can't edit other users' notes!");
             }
             note.setId(uuid);
+            note.setUserId(user.getId());
+            note.setUser(user);
             return noteRepository.save(note);
-        });
+        }));
     }
 
     @Override
-    public Mono<Note> delete(UUID uuid, Authentication authentication) {
+    public Mono<Void> delete(UUID uuid, Authentication authentication) {
         String currentUsername = authentication.getName();
-        return noteRepository.findById(uuid).flatMap(n -> {
-            if (!currentUsername.equals(n.getUser().getUsername())){
+        return userRepository.findByUsername(currentUsername).flatMap(user -> noteRepository.findById(uuid).flatMap(n -> {
+            if (!currentUsername.equals(user.getUsername())) {
                 throw new DifferentUserException("Users can't delete other users' notes!");
-            };
-            noteRepository.deleteById(uuid);
-            return Mono.just(n);
-        });
+            }
+            return noteRepository.deleteById(uuid);
+        }));
     }
 }

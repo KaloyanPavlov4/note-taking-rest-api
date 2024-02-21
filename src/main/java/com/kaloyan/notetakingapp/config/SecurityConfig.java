@@ -15,15 +15,14 @@ import org.springframework.security.web.server.SecurityWebFilterChain;
 public class SecurityConfig {
 
     @Bean
-    public static PasswordEncoder passwordEncoder(){
+    public static PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
     @Bean
-    public SecurityWebFilterChain securityFilterChain(ServerHttpSecurity http) throws Exception {
-        http.authorizeExchange(authorizeExchangeSpec ->authorizeExchangeSpec
-                .pathMatchers("/h2-console/**").permitAll()
-                .pathMatchers(HttpMethod.GET,"/*").permitAll()
+    public SecurityWebFilterChain securityFilterChain(ServerHttpSecurity http) {
+        http.authorizeExchange(authorizeExchangeSpec -> authorizeExchangeSpec
+                .pathMatchers(HttpMethod.GET, "/**").permitAll()
                 .pathMatchers(HttpMethod.POST, "/users").permitAll()
                 .pathMatchers("/admin").hasRole("ROLE_ADMIN").anyExchange().authenticated()).httpBasic(Customizer.withDefaults());
         http.csrf(ServerHttpSecurity.CsrfSpec::disable);

@@ -17,6 +17,5 @@ public interface NoteService {
 
     Mono<Note> edit(UUID uuid, Note note, Authentication authentication);
 
-    Mono<Note> delete(UUID uuid, Authentication authentication);
-
+    Mono<Void> delete(UUID uuid, Authentication authentication);
 }

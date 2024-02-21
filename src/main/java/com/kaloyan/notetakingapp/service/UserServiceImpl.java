@@ -9,7 +9,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -27,25 +26,25 @@ public class UserServiceImpl implements UserService {
     @Autowired
     NoteRepository noteRepository;
 
-
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-
-    @Override
-    public Mono<User> findById(UUID uuid) {
-        return userRepository.findById(uuid).flatMap(user -> noteRepository.findAllByUser(uuid).collectList().map(notes -> {
+    private Mono<User> userWithNotes(UUID userId) {
+        return userRepository.findById(userId).flatMap(user -> noteRepository.findAllByUser(userId).collectList().map(notes -> {
             user.setNotes(notes);
             return user;
         }));
     }
 
     @Override
+    public Mono<User> findById(UUID uuid) {
+        return userWithNotes(uuid);
+    }
+
+    @Override
     public Flux<User> findAll(Pageable pageable) {
-        return userRepository.findAll().flatMap(user -> noteRepository.findAllByUser(user.getId()).collectList().map(notes -> {
-            user.setNotes(notes);
-            return user;
-        })).skip(pageable.getPageNumber() * pageable.getPageSize()).take(pageable.getPageSize());
+        return userRepository.findAll().flatMap(user -> userWithNotes(user.getId()))
+                .skip(pageable.getPageNumber() * pageable.getPageSize()).take(pageable.getPageSize());
     }
 
     @Override
@@ -57,15 +56,13 @@ public class UserServiceImpl implements UserService {
 
     //Maybe not best way to return deleted user
     @Override
-    public Mono<User> deleteById(UUID uuid, Authentication authentication) {
+    public Flux<Void> deleteById(UUID uuid, Authentication authentication) {
         String currentUsername = authentication.getName();
-        return userRepository.findById(uuid).flatMap(u -> {
+        return userRepository.findById(uuid).flatMapMany(u -> {
                     if (!u.getUsername().equals(currentUsername)) {
                         throw new DifferentUserException("Users are forbidden from deleting other Users!");
                     }
-                authentication.setAuthenticated(false);
-                userRepository.deleteById(uuid);
-                return Mono.just(u);
+                    return Flux.merge(noteRepository.deleteAllNotesByUser(uuid), userRepository.deleteById(uuid));
                 }
         );
     }
@@ -79,7 +76,7 @@ public class UserServiceImpl implements UserService {
             }
             u.setUsername(username);
             authentication.setAuthenticated(false);
-            return userRepository.save(u);
+            return userRepository.save(u).flatMap(user -> userWithNotes(user.getId()));
         });
     }
 }
