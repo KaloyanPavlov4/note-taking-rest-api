@@ -68,7 +68,6 @@ public class UserServiceImpl implements UserService {
         }).map(UserDTO::new);
     }
 
-    //Maybe not best way to return deleted user
     @Override
     public Flux<Void> deleteById(UUID uuid, Authentication authentication) {
         String currentUsername = authentication.getName();

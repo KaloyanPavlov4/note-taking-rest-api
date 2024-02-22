@@ -20,31 +20,26 @@ public class NoteController {
     @Autowired
     NoteServiceImpl noteService;
 
-    //Gets all notes paginated
     @GetMapping
     public Flux<NoteDTO> notes(@PageableDefault Pageable pageable) {
         return noteService.findAll(pageable);
     }
 
-    //Gets note by ID
     @GetMapping("/{id}")
     public Mono<NoteDTO> note(@PathVariable("id") UUID noteId) {
         return noteService.findById(noteId);
     }
 
-    //Adds note and associates it with authenticated user.
     @PostMapping
     public Mono<NoteDTO> addNote(@RequestBody Note note, Authentication authentication) {
         return noteService.save(note, authentication);
     }
 
-    //Edits note. Checks if it belongs to currently logged-in user. If not returns 401
     @PutMapping("/{id}")
     public Mono<NoteDTO> editNote(@PathVariable("id") UUID noteId, @RequestBody Note note, Authentication authentication) {
         return noteService.edit(noteId, note, authentication);
     }
 
-    //Deletes note. Checks if it belongs to the authenticated user. If not returns 401
     @DeleteMapping("/{id}")
     public Mono<Void> deleteNote(@PathVariable("id") UUID noteId, Authentication authentication) {
         return noteService.deleteById(noteId, authentication);
