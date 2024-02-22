@@ -1,5 +1,6 @@
 package com.kaloyan.notetakingapp.controller;
 
+import com.kaloyan.notetakingapp.dto.UserDTO;
 import com.kaloyan.notetakingapp.model.User;
 import com.kaloyan.notetakingapp.service.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,25 +22,25 @@ public class UserController {
 
     //Gets all users paginated
     @GetMapping()
-    public Flux<User> users(@PageableDefault Pageable pageable) {
+    public Flux<UserDTO> users(@PageableDefault Pageable pageable) {
         return userService.findAll(pageable);
     }
 
     //Get user by ID
     @GetMapping("/{id}")
-    public Mono<User> user(@PathVariable("id") UUID userId) {
+    public Mono<UserDTO> user(@PathVariable("id") UUID userId) {
         return userService.findById(userId);
     }
 
     //Add user
     @PostMapping
-    public Mono<User> addUser(@RequestBody User user) {
+    public Mono<UserDTO> addUser(@RequestBody User user) {
         return userService.save(user);
     }
 
     //Change user's username. Checks if the authenticated user is the same that is being changed. If not returns 401
     @PatchMapping("/{id}")
-    public Mono<User> changeUsername(@PathVariable("id") UUID userId, @RequestBody User user, Authentication authentication) {
+    public Mono<UserDTO> changeUsername(@PathVariable("id") UUID userId, @RequestBody User user, Authentication authentication) {
         return userService.patchUsername(userId, user.getUsername(), authentication);
     }
 

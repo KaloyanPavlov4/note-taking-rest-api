@@ -7,10 +7,7 @@ import org.springframework.data.relational.core.mapping.Table;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 
 @Getter
@@ -28,15 +25,7 @@ public class User implements UserDetails {
     private String password;
     private Role role;
     @Transient
-    private List<Note> notes;
-
-    public User(UUID id, String username, String email, String password, Role role) {
-        this.id = id;
-        this.username = username;
-        this.email = email;
-        this.password = password;
-        this.role = role;
-    }
+    private List<Note> notes = new ArrayList<>();
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

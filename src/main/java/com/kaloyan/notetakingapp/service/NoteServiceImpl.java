@@ -1,5 +1,6 @@
 package com.kaloyan.notetakingapp.service;
 
+import com.kaloyan.notetakingapp.dto.NoteDTO;
 import com.kaloyan.notetakingapp.exception.DifferentUserException;
 import com.kaloyan.notetakingapp.model.Note;
 import com.kaloyan.notetakingapp.repository.NoteRepository;
@@ -17,6 +18,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @Service
 public class NoteServiceImpl implements NoteService {
+
     @Autowired
     UserRepository userRepository;
 
@@ -31,27 +33,27 @@ public class NoteServiceImpl implements NoteService {
     }
 
     @Override
-    public Mono<Note> findById(UUID uuid) {
-        return noteWithUser(uuid);
+    public Mono<NoteDTO> findById(UUID uuid) {
+        return noteWithUser(uuid).map(NoteDTO::new);
     }
 
     @Override
-    public Flux<Note> findAll(Pageable pageable) {
-        return noteRepository.findAll().flatMap(note -> noteWithUser(note.getId()))
+    public Flux<NoteDTO> findAll(Pageable pageable) {
+        return noteRepository.findAll().flatMap(note -> noteWithUser(note.getId())).map(NoteDTO::new)
                 .skip(pageable.getPageNumber() * pageable.getPageSize()).take(pageable.getPageSize());
     }
 
     @Override
-    public Mono<Note> save(Note note, Authentication authentication) {
+    public Mono<NoteDTO> save(Note note, Authentication authentication) {
         return userRepository.findByUsername(authentication.getName()).flatMap(u -> {
             note.setUserId(u.getId());
             note.setUser(u);
             return noteRepository.save(note);
-        });
+        }).map(NoteDTO::new);
     }
 
     @Override
-    public Mono<Note> edit(UUID uuid, Note note, Authentication authentication) {
+    public Mono<NoteDTO> edit(UUID uuid, Note note, Authentication authentication) {
         String currentUsername = authentication.getName();
         return userRepository.findByUsername(currentUsername).flatMap(user -> noteRepository.findById(uuid).flatMap(n -> {
             if (!currentUsername.equals(user.getUsername())) {
@@ -61,11 +63,11 @@ public class NoteServiceImpl implements NoteService {
             note.setUserId(user.getId());
             note.setUser(user);
             return noteRepository.save(note);
-        }));
+        })).map(NoteDTO::new);
     }
 
     @Override
-    public Mono<Void> delete(UUID uuid, Authentication authentication) {
+    public Mono<Void> deleteById(UUID uuid, Authentication authentication) {
         String currentUsername = authentication.getName();
         return userRepository.findByUsername(currentUsername).flatMap(user -> noteRepository.findById(uuid).flatMap(n -> {
             if (!currentUsername.equals(user.getUsername())) {

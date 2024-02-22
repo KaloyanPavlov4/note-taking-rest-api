@@ -1,5 +1,6 @@
 package com.kaloyan.notetakingapp.service;
 
+import com.kaloyan.notetakingapp.dto.UserDTO;
 import com.kaloyan.notetakingapp.exception.DifferentUserException;
 import com.kaloyan.notetakingapp.model.Role;
 import com.kaloyan.notetakingapp.model.User;
@@ -37,21 +38,34 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Mono<User> findById(UUID uuid) {
-        return userWithNotes(uuid);
+    public Mono<UserDTO> findById(UUID uuid) {
+        return userWithNotes(uuid).map(UserDTO::new);
     }
 
     @Override
-    public Flux<User> findAll(Pageable pageable) {
-        return userRepository.findAll().flatMap(user -> userWithNotes(user.getId()))
+    public Flux<UserDTO> findAll(Pageable pageable) {
+        return userRepository.findAll().flatMap(user -> userWithNotes(user.getId())).map(UserDTO::new)
                 .skip(pageable.getPageNumber() * pageable.getPageSize()).take(pageable.getPageSize());
     }
 
     @Override
-    public Mono<User> save(User user) {
+    public Mono<UserDTO> save(User user) {
         user.setRole(Role.ROLE_USER);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        return userRepository.save(user);
+        return userRepository.save(user).map(UserDTO::new);
+    }
+
+    @Override
+    public Mono<UserDTO> patchUsername(UUID uuid, String username, Authentication authentication) {
+        String currentUsername = authentication.getName();
+        return userRepository.findById(uuid).flatMap(u -> {
+            if (!u.getUsername().equals(currentUsername)) {
+                throw new DifferentUserException("Users are forbidden from changing other Users!");
+            }
+            u.setUsername(username);
+            authentication.setAuthenticated(false);
+            return userRepository.save(u).flatMap(user -> userWithNotes(user.getId()));
+        }).map(UserDTO::new);
     }
 
     //Maybe not best way to return deleted user
@@ -65,18 +79,5 @@ public class UserServiceImpl implements UserService {
                     return Flux.merge(noteRepository.deleteAllNotesByUser(uuid), userRepository.deleteById(uuid));
                 }
         );
-    }
-
-    @Override
-    public Mono<User> patchUsername(UUID uuid, String username, Authentication authentication) {
-        String currentUsername = authentication.getName();
-        return userRepository.findById(uuid).flatMap(u -> {
-            if (!u.getUsername().equals(currentUsername)) {
-                throw new DifferentUserException("Users are forbidden from changing other Users!");
-            }
-            u.setUsername(username);
-            authentication.setAuthenticated(false);
-            return userRepository.save(u).flatMap(user -> userWithNotes(user.getId()));
-        });
     }
 }
