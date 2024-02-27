@@ -30,21 +30,21 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    private Mono<User> userWithNotes(UUID userId) {
-        return userRepository.findById(userId).flatMap(user -> noteRepository.findAllByUser(userId).collectList().map(notes -> {
+    private Mono<UserDTO> userWithNotes(User user) {
+        return noteRepository.findAllByUser(user.getId()).collectList().flatMap(notes -> {
             user.setNotes(notes);
-            return user;
-        }));
+            return Mono.just(new UserDTO(user));
+        });
     }
 
     @Override
     public Mono<UserDTO> findById(UUID uuid) {
-        return userWithNotes(uuid).map(UserDTO::new);
+        return userRepository.findById(uuid).flatMap(this::userWithNotes);
     }
 
     @Override
     public Flux<UserDTO> findAll(Pageable pageable) {
-        return userRepository.findAll().flatMap(user -> userWithNotes(user.getId())).map(UserDTO::new)
+        return userRepository.findAll().flatMap(this::userWithNotes)
                 .skip(pageable.getPageNumber() * pageable.getPageSize()).take(pageable.getPageSize());
     }
 
