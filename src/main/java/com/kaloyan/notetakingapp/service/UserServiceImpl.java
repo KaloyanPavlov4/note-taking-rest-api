@@ -64,8 +64,8 @@ public class UserServiceImpl implements UserService {
             }
             u.setUsername(username);
             authentication.setAuthenticated(false);
-            return userRepository.save(u).flatMap(user -> userWithNotes(user.getId()));
-        }).map(UserDTO::new);
+            return userRepository.save(u).flatMap(this::userWithNotes);
+        });
     }
 
     @Override

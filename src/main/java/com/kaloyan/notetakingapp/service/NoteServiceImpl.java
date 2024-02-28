@@ -69,11 +69,12 @@ public class NoteServiceImpl implements NoteService {
     @Override
     public Mono<Void> deleteById(UUID uuid, Authentication authentication) {
         String currentUsername = authentication.getName();
-        return userRepository.findByUsername(currentUsername).flatMap(user -> noteRepository.findById(uuid).flatMap(n -> {
-            if (!currentUsername.equals(user.getUsername())) {
+        return noteWithUser(uuid).flatMap(note -> {
+            if(!currentUsername.equals(note.getUser().getUsername())){
                 throw new DifferentUserException("Users can't delete other users' notes!");
             }
             return noteRepository.deleteById(uuid);
-        }));
+        });
+
     }
 }
