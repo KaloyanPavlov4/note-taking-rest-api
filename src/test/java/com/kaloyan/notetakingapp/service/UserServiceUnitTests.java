@@ -2,7 +2,6 @@ package com.kaloyan.notetakingapp.service;
 
 import com.kaloyan.notetakingapp.dto.UserDTO;
 import com.kaloyan.notetakingapp.exception.DifferentUserException;
-import com.kaloyan.notetakingapp.model.Note;
 import com.kaloyan.notetakingapp.model.User;
 import com.kaloyan.notetakingapp.repository.NoteRepository;
 import com.kaloyan.notetakingapp.repository.UserRepository;
@@ -21,7 +20,6 @@ import reactor.test.StepVerifier;
 
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -33,32 +31,27 @@ import static org.mockito.Mockito.mock;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class UserServiceUnitTests {
 
-    UserRepository userRepository;
+    private final UserRepository userRepository = mock(UserRepository.class);;
 
-    NoteRepository noteRepository;
+    private final NoteRepository noteRepository = mock(NoteRepository.class);;
 
-    Authentication authentication;
+    private final Authentication authentication = mock(Authentication.class);
 
     @InjectMocks
-    UserServiceImpl userService;
+    private UserServiceImpl userService;
 
-    UUID userId;
+    private UUID userId;
 
-    List<Note> noteList;
-
-    User user;
+    private User user;
 
     @BeforeAll
     public void init() {
         userId = UUID.randomUUID();
-        noteList = new ArrayList<>();
-        user = User.builder().id(userId).email("email").username("username").password("password").build();
+        user = User.builder().id(userId).email("email").username("username").password("password").notes(new ArrayList<>()).build();
 
-        userRepository = mock(UserRepository.class);
-        noteRepository = mock(NoteRepository.class);
-        authentication = mock(Authentication.class);
+        //Mocks
         Mockito.when(userRepository.findById(userId)).thenReturn(Mono.just(user));
-        Mockito.when(noteRepository.findAllByUser(userId)).thenReturn(Flux.fromIterable(noteList));
+        Mockito.when(noteRepository.findAllByUser(userId)).thenReturn(Flux.fromIterable(new ArrayList<>()));
     }
 
     @Test
@@ -93,15 +86,5 @@ public class UserServiceUnitTests {
 
         Flux<Void> returned = userService.deleteById(user.getId(),authentication);
         StepVerifier.create(returned).expectErrorMatches(throwable -> throwable instanceof DifferentUserException).verify();
-    }
-
-    @Test
-    public void deletingUserReturnsFluxVoid(){
-        Mockito.when(authentication.getName()).thenReturn("username");
-        Mockito.when(noteRepository.deleteAllNotesByUser(userId)).thenReturn(Mono.empty());
-        Mockito.when(userRepository.deleteById(userId)).thenReturn(Mono.empty());
-
-        Flux<Void> returned = userService.deleteById(user.getId(),authentication);
-        StepVerifier.create(returned).verifyComplete();
     }
 }

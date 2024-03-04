@@ -44,7 +44,8 @@ public class NoteServiceImpl implements NoteService {
     }
 
     @Override
-    public Mono<NoteDTO> save(Note note, Authentication authentication) {
+    public Mono<NoteDTO> save(NoteDTO noteDto, Authentication authentication) {
+        Note note = new Note(noteDto);
         return userRepository.findByUsername(authentication.getName()).flatMap(u -> {
             note.setUserId(u.getId());
             note.setUser(u);
@@ -53,8 +54,9 @@ public class NoteServiceImpl implements NoteService {
     }
 
     @Override
-    public Mono<NoteDTO> edit(UUID uuid, Note note, Authentication authentication) {
+    public Mono<NoteDTO> edit(UUID uuid, NoteDTO noteDTO, Authentication authentication) {
         String currentUsername = authentication.getName();
+        Note note = new Note(noteDTO);
         return userRepository.findByUsername(currentUsername).flatMap(user -> noteRepository.findById(uuid).flatMap(n -> {
             if (!currentUsername.equals(user.getUsername())) {
                 throw new DifferentUserException("Users can't edit other users' notes!");

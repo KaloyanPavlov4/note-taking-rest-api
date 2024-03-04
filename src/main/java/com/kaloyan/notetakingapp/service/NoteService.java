@@ -1,7 +1,6 @@
 package com.kaloyan.notetakingapp.service;
 
 import com.kaloyan.notetakingapp.dto.NoteDTO;
-import com.kaloyan.notetakingapp.model.Note;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import reactor.core.publisher.Flux;
@@ -14,9 +13,9 @@ public interface NoteService {
 
     Flux<NoteDTO> findAll(Pageable pageable);
 
-    Mono<NoteDTO> save(Note note, Authentication authentication);
+    Mono<NoteDTO> save(NoteDTO noteDTO, Authentication authentication);
 
-    Mono<NoteDTO> edit(UUID uuid, Note note, Authentication authentication);
+    Mono<NoteDTO> edit(UUID uuid, NoteDTO noteDTO, Authentication authentication);
 
     Mono<Void> deleteById(UUID uuid, Authentication authentication);
 }
