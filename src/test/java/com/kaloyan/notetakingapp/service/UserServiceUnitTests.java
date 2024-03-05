@@ -37,8 +37,6 @@ public class UserServiceUnitTests {
 
     NoteRepository noteRepository;
 
-    Authentication authentication;
-
     @InjectMocks
     UserServiceImpl userService;
 
@@ -56,7 +54,6 @@ public class UserServiceUnitTests {
 
         userRepository = mock(UserRepository.class);
         noteRepository = mock(NoteRepository.class);
-        authentication = mock(Authentication.class);
         Mockito.when(userRepository.findById(userId)).thenReturn(Mono.just(user));
         Mockito.when(noteRepository.findAllByUser(userId)).thenReturn(Flux.fromIterable(noteList));
     }
@@ -71,37 +68,31 @@ public class UserServiceUnitTests {
 
     @Test
     public void changingUsernameByDifferentUserThrowsException(){
-        Mockito.when(authentication.getName()).thenReturn("differentUsername");
-
-        Mono<UserDTO> returned = userService.patchUsername(user.getId(),"user",authentication);
+        Mono<UserDTO> returned = userService.patchUsername(user.getId(),"user",Mono.just("differentUsername"));
         StepVerifier.create(returned).expectErrorMatches(throwable -> throwable instanceof DifferentUserException).verify();
     }
 
     @Test
     public void changingUsernameReturnsUpdatedUserDTO(){
-        Mockito.when(authentication.getName()).thenReturn("username");
         Mockito.when(userRepository.save(any(User.class))).thenAnswer(i -> Mono.just(i.getArguments()[0]));
 
-        Mono<UserDTO> returnedUserDTO = userService.patchUsername(userId,"newUsername", authentication);
+        Mono<UserDTO> returnedUserDTO = userService.patchUsername(userId,"newUsername", Mono.just("username"));
         StepVerifier.create(returnedUserDTO).expectNextMatches(userDTO -> userDTO.getUsername().equals("newUsername")).verifyComplete();
         user.setUsername("username");
     }
 
     @Test
     public void deletingUserByDifferentUserThrowsException(){
-        Mockito.when(authentication.getName()).thenReturn("differentUsername");
-
-        Flux<Void> returned = userService.deleteById(user.getId(),authentication);
+        Flux<Void> returned = userService.deleteById(user.getId(), Mono.just("differentUsername"));
         StepVerifier.create(returned).expectErrorMatches(throwable -> throwable instanceof DifferentUserException).verify();
     }
 
     @Test
     public void deletingUserReturnsFluxVoid(){
-        Mockito.when(authentication.getName()).thenReturn("username");
         Mockito.when(noteRepository.deleteAllNotesByUser(userId)).thenReturn(Mono.empty());
         Mockito.when(userRepository.deleteById(userId)).thenReturn(Mono.empty());
 
-        Flux<Void> returned = userService.deleteById(user.getId(),authentication);
+        Flux<Void> returned = userService.deleteById(user.getId(),Mono.just("username"));
         StepVerifier.create(returned).verifyComplete();
     }
 }

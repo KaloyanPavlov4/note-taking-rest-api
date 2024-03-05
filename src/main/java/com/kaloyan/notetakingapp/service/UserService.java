@@ -16,7 +16,7 @@ public interface UserService {
 
     Mono<UserDTO> save(User user);
 
-    Mono<UserDTO> patchUsername(UUID uuid, String username, Authentication authentication);
+    Mono<UserDTO> patchUsername(UUID uuid, String username, Mono<String> currentUser);
 
-    Flux<Void> deleteById(UUID uuid, Authentication authentication);
+    Flux<Void> deleteById(UUID uuid, Mono<String> currentUser);
 }
