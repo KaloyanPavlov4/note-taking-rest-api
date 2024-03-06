@@ -44,8 +44,9 @@ public class NoteServiceImpl implements NoteService {
     }
 
     @Override
-    public Mono<NoteDTO> save(Note note, Mono<String> currentUser) {
-        return currentUser.flatMap(username -> userRepository.findByUsername(username).flatMap(u -> {
+    public Mono<NoteDTO> save(NoteDTO noteDto, Mono<String> authenticatedUsername) {
+        Note note = new Note(noteDto);
+        return authenticatedUsername.flatMap(username -> userRepository.findByUsername(username).flatMap(u -> {
             note.setUserId(u.getId());
             note.setUser(u);
             return noteRepository.save(note);
@@ -53,8 +54,9 @@ public class NoteServiceImpl implements NoteService {
     }
 
     @Override
-    public Mono<NoteDTO> edit(UUID uuid, Note note, Mono<String> currentUser) {
-        return currentUser.flatMap(username -> userRepository.findByUsername(username).flatMap(user -> noteRepository.findById(uuid).flatMap(n -> {
+    public Mono<NoteDTO> edit(UUID uuid, NoteDTO noteDTO, Mono<String> authenticatedUsername) {
+        Note note = new Note(noteDTO);
+        return authenticatedUsername.flatMap(username -> userRepository.findByUsername(username).flatMap(user -> noteRepository.findById(uuid).flatMap(n -> {
             if (!username.equals(user.getUsername())) {
                 throw new DifferentUserException("Users can't edit other users' notes!");
             }
@@ -66,8 +68,8 @@ public class NoteServiceImpl implements NoteService {
     }
 
     @Override
-    public Mono<Void> deleteById(UUID uuid, Mono<String> currentUser) {
-        return currentUser.flatMap(username -> noteWithUser(uuid).flatMap(note -> {
+    public Mono<Void> deleteById(UUID uuid, Mono<String> authenticatedUsername) {
+        return authenticatedUsername.flatMap(username -> noteWithUser(uuid).flatMap(note -> {
             if(!username.equals(note.getUser().getUsername())){
                 throw new DifferentUserException("Users can't delete other users' notes!");
             }

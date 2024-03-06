@@ -10,7 +10,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -58,9 +57,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Mono<UserDTO> patchUsername(UUID uuid, String username, Mono<String> currentUsername) {
-        return currentUsername.flatMap(current -> userRepository.findById(uuid).flatMap(u -> {
-            if (!u.getUsername().equals(current)) {
+    public Mono<UserDTO> patchUsername(UUID uuid, String username, Mono<String> authenticatedUsername) {
+        return authenticatedUsername.flatMap(authUser -> userRepository.findById(uuid).flatMap(u -> {
+            if (!u.getUsername().equals(authUser)) {
                 throw new DifferentUserException("Users are forbidden from changing other Users!");
             }
             u.setUsername(username);
@@ -69,8 +68,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Flux<Void> deleteById(UUID uuid, Mono<String> currentUsername) {
-        return currentUsername.flatMapMany(username -> userRepository.findById(uuid).flatMapMany(u -> {
+    public Flux<Void> deleteById(UUID uuid, Mono<String> authenticatedUsername) {
+        return authenticatedUsername.flatMapMany(username -> userRepository.findById(uuid).flatMapMany(u -> {
                     if (!u.getUsername().equals(username)) {
                         throw new DifferentUserException("Users are forbidden from deleting other Users!");
                     }
