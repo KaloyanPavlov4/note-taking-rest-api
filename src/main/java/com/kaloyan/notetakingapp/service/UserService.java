@@ -2,7 +2,6 @@ package com.kaloyan.notetakingapp.service;
 
 import com.kaloyan.notetakingapp.dto.UserDTO;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.Authentication;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
