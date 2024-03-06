@@ -7,7 +7,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
-
 @Service
 public class CustomUserDetailsService implements ReactiveUserDetailsService {
 
