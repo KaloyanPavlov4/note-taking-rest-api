@@ -3,6 +3,7 @@ package com.kaloyan.notetakingapp.dto;
 import com.kaloyan.notetakingapp.model.Note;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 import lombok.Setter;
 
 import java.util.UUID;
@@ -13,8 +14,14 @@ import java.util.UUID;
 public class NoteDTO {
 
     private UUID id;
+
+    @NonNull
     private String title;
+
+    @NonNull
     private String text;
+
+    @NonNull
     private UUID userId;
 
     public NoteDTO(Note note){

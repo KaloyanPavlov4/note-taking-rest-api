@@ -1,11 +1,7 @@
 package com.kaloyan.notetakingapp.model;
 
 import com.kaloyan.notetakingapp.dto.UserDTO;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.Builder;
+import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.relational.core.mapping.Table;
@@ -24,9 +20,16 @@ public class User implements UserDetails {
 
     @Id
     private UUID id;
+
+    @NonNull
     private String username;
+
+    @NonNull
     private String email;
+
+    @NonNull
     private String password;
+
     private Role role;
 
     @Transient

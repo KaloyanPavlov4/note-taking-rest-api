@@ -5,6 +5,7 @@ import com.kaloyan.notetakingapp.model.Role;
 import com.kaloyan.notetakingapp.model.User;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 import lombok.Setter;
 
 import java.util.ArrayList;
@@ -17,8 +18,14 @@ import java.util.UUID;
 public class UserDTO {
 
     private UUID id;
+
+    @NonNull
     private String username;
+
+    @NonNull
     private String email;
+
+    @NonNull
     private String password;
     private Role role;
     private List<NoteDTO> notes = new ArrayList<>();
