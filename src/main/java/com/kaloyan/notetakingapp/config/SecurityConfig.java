@@ -12,7 +12,7 @@ import org.springframework.security.web.server.SecurityWebFilterChain;
 
 @EnableWebFluxSecurity
 @Configuration
-public class SecurityConfig{
+public class SecurityConfig {
 
     @Bean
     public static PasswordEncoder passwordEncoder() {
@@ -21,12 +21,11 @@ public class SecurityConfig{
 
     @Bean
     public SecurityWebFilterChain securityFilterChain(ServerHttpSecurity http) {
-        return http.authorizeExchange(authorizeExchangeSpec -> authorizeExchangeSpec
-                        .pathMatchers(HttpMethod.GET, "/**").permitAll()
-                        .pathMatchers(HttpMethod.POST, "/users").permitAll()
-                        .pathMatchers("/admin").hasRole("ROLE_ADMIN").anyExchange().authenticated())
-                .httpBasic(Customizer.withDefaults())
-                .csrf(ServerHttpSecurity.CsrfSpec::disable)
-                .build();
+        http.authorizeExchange(authorizeExchangeSpec -> authorizeExchangeSpec
+                .pathMatchers(HttpMethod.GET, "/**").permitAll()
+                .pathMatchers(HttpMethod.POST, "/users").permitAll()
+                .pathMatchers("/admin").hasRole("ROLE_ADMIN").anyExchange().authenticated()).httpBasic(Customizer.withDefaults());
+        http.csrf(ServerHttpSecurity.CsrfSpec::disable);
+        return http.build();
     }
 }
