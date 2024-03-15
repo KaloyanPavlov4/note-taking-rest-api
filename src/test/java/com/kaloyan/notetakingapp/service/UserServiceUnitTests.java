@@ -51,7 +51,7 @@ public class UserServiceUnitTests {
 
         //Mocks
         Mockito.when(userRepository.findById(userId)).thenReturn(Mono.just(user));
-        Mockito.when(noteRepository.findAllByUser(userId)).thenReturn(Flux.fromIterable(new ArrayList<>()));
+        Mockito.when(noteRepository.findByUserId(userId)).thenReturn(Flux.fromIterable(new ArrayList<>()));
     }
 
     @Test
