@@ -20,7 +20,6 @@ import reactor.test.StepVerifier;
 
 import java.util.UUID;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 
 @SpringBootTest
@@ -28,22 +27,20 @@ import static org.mockito.Mockito.mock;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class NoteServiceUnitTests {
 
-    private final UserRepository userRepository = mock(UserRepository.class);;
+    UserRepository userRepository;
 
-    private final NoteRepository noteRepository = mock(NoteRepository.class);;
-
-    private final Authentication authentication = mock(Authentication.class);;
+    NoteRepository noteRepository;
 
     @InjectMocks
-    private NoteServiceImpl noteService;
+    NoteServiceImpl noteService;
 
-    private UUID noteId;
+    UUID noteId;
 
-    private UUID userId;
+    UUID userId;
 
-    private Note note;
+    Note note;
 
-    private User user;
+    User user;
 
     @BeforeAll
     public void init() {
@@ -52,7 +49,8 @@ public class NoteServiceUnitTests {
         user = User.builder().id(userId).email("email").username("username").password("password").build();
         note = Note.builder().id(noteId).title("title").text("text").userId(userId).user(user).build();
 
-        //Mocks
+        userRepository = mock(UserRepository.class);
+        noteRepository = mock(NoteRepository.class);
         Mockito.when(noteRepository.findById(noteId)).thenReturn(Mono.just(note));
         Mockito.when(userRepository.findById(userId)).thenReturn(Mono.just(user));
     }
@@ -67,14 +65,11 @@ public class NoteServiceUnitTests {
 
     @Test
     public void editingNoteReturnsEditedNoteDTO(){
-        Mockito.when(authentication.getName()).thenReturn("username");
         Mockito.when(userRepository.findByUsername("username")).thenReturn(Mono.just(user));
-        NoteDTO editedNote = new NoteDTO();
-        editedNote.setTitle("newTitle");
-        editedNote.setText("newText");
-        Mockito.when(noteRepository.save(any(Note.class))).thenAnswer(i -> Mono.just(i.getArguments()[0]));
+        Note editedNote = Note.builder().title("newTitle").text("newText").build();
+        Mockito.when(noteRepository.save(editedNote)).thenReturn(Mono.just(editedNote));
+        Mono<NoteDTO> returnedNote = noteService.edit(noteId,editedNote,Mono.just("username"));
 
-        Mono<NoteDTO> returnedNote = noteService.edit(noteId,editedNote,authentication);
         StepVerifier
                 .create(returnedNote).consumeNextWith(noteDTO -> {
                     assert(noteDTO.getId().equals(noteId));
@@ -87,20 +82,26 @@ public class NoteServiceUnitTests {
 
     @Test
     public void editingNoteByDifferentUserThrowsException(){
-        Mockito.when(authentication.getName()).thenReturn("differentUsername");
         Mockito.when(userRepository.findByUsername("differentUsername")).thenReturn(Mono.just(user));
+        Mono<NoteDTO> returnedNote = noteService.edit(noteId,note,Mono.just("differentUsername"));
 
-        Mono<NoteDTO> returnedNote = noteService.edit(noteId,new NoteDTO(),authentication);
         StepVerifier
                 .create(returnedNote).expectErrorMatches(throwable -> throwable instanceof DifferentUserException).verify();
     }
 
     @Test
     public void deletingNoteByDifferentUserThrowsException(){
-        Mockito.when(authentication.getName()).thenReturn("differentUsername");
-
-        Mono<Void> returned = noteService.deleteById(noteId,authentication);
+        Mono<Void> returned = noteService.deleteById(noteId,Mono.just("differentUsername"));
         StepVerifier
                 .create(returned).expectErrorMatches(throwable -> throwable instanceof DifferentUserException).verify();
+    }
+
+    @Test
+    public void deletingNoteReturnsMonoVoid(){
+        Mockito.when(noteRepository.deleteById(noteId)).thenReturn(Mono.empty());
+
+        Mono<Void> returned = noteService.deleteById(noteId,Mono.just("username"));
+        StepVerifier
+                .create(returned).verifyComplete();
     }
 }

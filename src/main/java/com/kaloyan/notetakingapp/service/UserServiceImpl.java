@@ -10,6 +10,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -57,27 +58,24 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Mono<UserDTO> patchUsername(UUID uuid, String username, Authentication authentication) {
-        String currentUsername = authentication.getName();
-        return userRepository.findById(uuid).flatMap(u -> {
-            if (!u.getUsername().equals(currentUsername)) {
+    public Mono<UserDTO> patchUsername(UUID uuid, String username, Mono<String> currentUsername) {
+        return currentUsername.flatMap(current -> userRepository.findById(uuid).flatMap(u -> {
+            if (!u.getUsername().equals(current)) {
                 throw new DifferentUserException("Users are forbidden from changing other Users!");
             }
             u.setUsername(username);
-            authentication.setAuthenticated(false);
             return userRepository.save(u).flatMap(this::userWithNotes);
-        });
+        }));
     }
 
     @Override
-    public Flux<Void> deleteById(UUID uuid, Authentication authentication) {
-        String currentUsername = authentication.getName();
-        return userRepository.findById(uuid).flatMapMany(u -> {
-                    if (!u.getUsername().equals(currentUsername)) {
+    public Flux<Void> deleteById(UUID uuid, Mono<String> currentUsername) {
+        return currentUsername.flatMapMany(username -> userRepository.findById(uuid).flatMapMany(u -> {
+                    if (!u.getUsername().equals(username)) {
                         throw new DifferentUserException("Users are forbidden from deleting other Users!");
                     }
                     return Flux.merge(noteRepository.deleteAllNotesByUser(uuid), userRepository.deleteById(uuid));
                 }
-        );
+        ));
     }
 }

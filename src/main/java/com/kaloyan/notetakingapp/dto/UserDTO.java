@@ -3,6 +3,8 @@ package com.kaloyan.notetakingapp.dto;
 import com.kaloyan.notetakingapp.model.Note;
 import com.kaloyan.notetakingapp.model.Role;
 import com.kaloyan.notetakingapp.model.User;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -18,6 +20,7 @@ public class UserDTO {
 
     private UUID id;
     private String username;
+    @Pattern(regexp = "^.+@\\S+$", flags = {Pattern.Flag.CASE_INSENSITIVE}, message = "Please enter valid email!")
     private String email;
     private String password;
     private Role role;

@@ -2,6 +2,7 @@ package com.kaloyan.notetakingapp.service;
 
 import com.kaloyan.notetakingapp.dto.UserDTO;
 import com.kaloyan.notetakingapp.exception.DifferentUserException;
+import com.kaloyan.notetakingapp.model.Note;
 import com.kaloyan.notetakingapp.model.User;
 import com.kaloyan.notetakingapp.repository.NoteRepository;
 import com.kaloyan.notetakingapp.repository.UserRepository;
@@ -20,6 +21,7 @@ import reactor.test.StepVerifier;
 
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -31,27 +33,33 @@ import static org.mockito.Mockito.mock;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class UserServiceUnitTests {
 
-    private final UserRepository userRepository = mock(UserRepository.class);;
+    UserRepository userRepository;
 
-    private final NoteRepository noteRepository = mock(NoteRepository.class);;
-
-    private final Authentication authentication = mock(Authentication.class);
+    NoteRepository noteRepository;
 
     @InjectMocks
-    private UserServiceImpl userService;
+    UserServiceImpl userService;
 
-    private UUID userId;
+    UUID userId;
 
-    private User user;
+    List<Note> noteList;
+
+    User user;
 
     @BeforeAll
     public void init() {
         userId = UUID.randomUUID();
-        user = User.builder().id(userId).email("email").username("username").password("password").notes(new ArrayList<>()).build();
+        noteList = new ArrayList<>();
+        user = User.builder().id(userId).email("email").username("username").password("password").build();
 
-        //Mocks
+        userRepository = mock(UserRepository.class);
+        noteRepository = mock(NoteRepository.class);
         Mockito.when(userRepository.findById(userId)).thenReturn(Mono.just(user));
+<<<<<<< HEAD
         Mockito.when(noteRepository.findByUserId(userId)).thenReturn(Flux.fromIterable(new ArrayList<>()));
+=======
+        Mockito.when(noteRepository.findAllByUser(userId)).thenReturn(Flux.fromIterable(noteList));
+>>>>>>> 96bfa47b85a6708b97e0a1b6a4c637692ac9b7d6
     }
 
     @Test
@@ -64,27 +72,31 @@ public class UserServiceUnitTests {
 
     @Test
     public void changingUsernameByDifferentUserThrowsException(){
-        Mockito.when(authentication.getName()).thenReturn("differentUsername");
-
-        Mono<UserDTO> returned = userService.patchUsername(user.getId(),"user",authentication);
+        Mono<UserDTO> returned = userService.patchUsername(user.getId(),"user",Mono.just("differentUsername"));
         StepVerifier.create(returned).expectErrorMatches(throwable -> throwable instanceof DifferentUserException).verify();
     }
 
     @Test
     public void changingUsernameReturnsUpdatedUserDTO(){
-        Mockito.when(authentication.getName()).thenReturn("username");
         Mockito.when(userRepository.save(any(User.class))).thenAnswer(i -> Mono.just(i.getArguments()[0]));
 
-        Mono<UserDTO> returnedUserDTO = userService.patchUsername(userId,"newUsername", authentication);
+        Mono<UserDTO> returnedUserDTO = userService.patchUsername(userId,"newUsername", Mono.just("username"));
         StepVerifier.create(returnedUserDTO).expectNextMatches(userDTO -> userDTO.getUsername().equals("newUsername")).verifyComplete();
         user.setUsername("username");
     }
 
     @Test
     public void deletingUserByDifferentUserThrowsException(){
-        Mockito.when(authentication.getName()).thenReturn("differentUsername");
-
-        Flux<Void> returned = userService.deleteById(user.getId(),authentication);
+        Flux<Void> returned = userService.deleteById(user.getId(), Mono.just("differentUsername"));
         StepVerifier.create(returned).expectErrorMatches(throwable -> throwable instanceof DifferentUserException).verify();
+    }
+
+    @Test
+    public void deletingUserReturnsFluxVoid(){
+        Mockito.when(noteRepository.deleteAllNotesByUser(userId)).thenReturn(Mono.empty());
+        Mockito.when(userRepository.deleteById(userId)).thenReturn(Mono.empty());
+
+        Flux<Void> returned = userService.deleteById(user.getId(),Mono.just("username"));
+        StepVerifier.create(returned).verifyComplete();
     }
 }

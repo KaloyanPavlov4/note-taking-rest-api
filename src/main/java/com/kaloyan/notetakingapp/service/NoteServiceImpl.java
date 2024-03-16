@@ -44,39 +44,35 @@ public class NoteServiceImpl implements NoteService {
     }
 
     @Override
-    public Mono<NoteDTO> save(NoteDTO noteDto, Authentication authentication) {
-        Note note = new Note(noteDto);
-        return userRepository.findByUsername(authentication.getName()).flatMap(u -> {
+    public Mono<NoteDTO> save(Note note, Mono<String> currentUser) {
+        return currentUser.flatMap(username -> userRepository.findByUsername(username).flatMap(u -> {
             note.setUserId(u.getId());
             note.setUser(u);
             return noteRepository.save(note);
-        }).map(NoteDTO::new);
+        }).map(NoteDTO::new));
     }
 
     @Override
-    public Mono<NoteDTO> edit(UUID uuid, NoteDTO noteDTO, Authentication authentication) {
-        String currentUsername = authentication.getName();
-        Note note = new Note(noteDTO);
-        return userRepository.findByUsername(currentUsername).flatMap(user -> noteRepository.findById(uuid).flatMap(n -> {
-            if (!currentUsername.equals(user.getUsername())) {
+    public Mono<NoteDTO> edit(UUID uuid, Note note, Mono<String> currentUser) {
+        return currentUser.flatMap(username -> userRepository.findByUsername(username).flatMap(user -> noteRepository.findById(uuid).flatMap(n -> {
+            if (!username.equals(user.getUsername())) {
                 throw new DifferentUserException("Users can't edit other users' notes!");
             }
             note.setId(uuid);
             note.setUserId(user.getId());
             note.setUser(user);
             return noteRepository.save(note);
-        })).map(NoteDTO::new);
+        })).map(NoteDTO::new));
     }
 
     @Override
-    public Mono<Void> deleteById(UUID uuid, Authentication authentication) {
-        String currentUsername = authentication.getName();
-        return noteWithUser(uuid).flatMap(note -> {
-            if(!currentUsername.equals(note.getUser().getUsername())){
+    public Mono<Void> deleteById(UUID uuid, Mono<String> currentUser) {
+        return currentUser.flatMap(username -> noteWithUser(uuid).flatMap(note -> {
+            if(!username.equals(note.getUser().getUsername())){
                 throw new DifferentUserException("Users can't delete other users' notes!");
             }
             return noteRepository.deleteById(uuid);
-        });
+        }));
 
     }
 }
