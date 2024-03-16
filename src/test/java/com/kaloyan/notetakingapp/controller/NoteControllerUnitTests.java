@@ -2,6 +2,7 @@ package com.kaloyan.notetakingapp.controller;
 
 import com.kaloyan.notetakingapp.config.SecurityConfig;
 import com.kaloyan.notetakingapp.dto.NoteDTO;
+import com.kaloyan.notetakingapp.model.Note;
 import com.kaloyan.notetakingapp.service.NoteService;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -53,7 +54,7 @@ public class NoteControllerUnitTests {
     @WithUserDetails
     public void addNoteReturns201(){
         Mockito.when(noteService.save(any(),any())).thenReturn(Mono.empty());
-        webTestClient.post().uri("/notes").bodyValue(new NoteDTO()).exchange().expectStatus().isCreated();
+        webTestClient.post().uri("/notes").bodyValue(new NoteDTO(Note.builder().title("Title").text("Text").build())).exchange().expectStatus().isCreated();
     }
 
     @Test

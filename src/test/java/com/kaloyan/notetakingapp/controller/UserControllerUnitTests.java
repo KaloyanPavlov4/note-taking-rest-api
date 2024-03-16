@@ -2,6 +2,7 @@ package com.kaloyan.notetakingapp.controller;
 
 import com.kaloyan.notetakingapp.config.SecurityConfig;
 import com.kaloyan.notetakingapp.dto.UserDTO;
+import com.kaloyan.notetakingapp.model.User;
 import com.kaloyan.notetakingapp.service.UserService;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -19,6 +20,8 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -57,7 +60,7 @@ public class UserControllerUnitTests {
         Mockito.when(userService.save(any(UserDTO.class))).thenReturn(Mono.empty());
         webTestClient.post()
                 .uri("/users")
-                .bodyValue(new UserDTO())
+                .bodyValue(new UserDTO(User.builder().username("username").password("pass").email("example@email.com").notes(new ArrayList<>()).build()))
                 .exchange()
                 .expectStatus()
                 .isCreated();
@@ -74,7 +77,7 @@ public class UserControllerUnitTests {
     @WithUserDetails
     public void patchingUsernameReturns200(){
         Mockito.when(userService.patchUsername(any(),any(),any())).thenReturn(Mono.empty());
-        webTestClient.patch().uri("/users/" + userId).bodyValue(new UserDTO()).exchange().expectStatus().isOk();
+        webTestClient.patch().uri("/users/" + userId).bodyValue(new HashMap<String,String>()).exchange().expectStatus().isOk();
     }
 
     @Test
