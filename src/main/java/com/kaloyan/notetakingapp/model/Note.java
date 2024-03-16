@@ -1,7 +1,11 @@
 package com.kaloyan.notetakingapp.model;
 
 import com.kaloyan.notetakingapp.dto.NoteDTO;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.Builder;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.relational.core.mapping.Table;
@@ -18,14 +22,8 @@ public class Note {
 
     @Id
     private UUID id;
-
-    @NonNull
     private String title;
-
-    @NonNull
     private String text;
-
-    @NonNull
     private UUID userId;
 
     @Transient

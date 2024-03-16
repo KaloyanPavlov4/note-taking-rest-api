@@ -1,9 +1,10 @@
 package com.kaloyan.notetakingapp.dto;
 
 import com.kaloyan.notetakingapp.model.Note;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
 import lombok.Setter;
 
 import java.util.UUID;
@@ -15,13 +16,12 @@ public class NoteDTO {
 
     private UUID id;
 
-    @NonNull
+    @NotNull(message = "Title should not be empty!")
     private String title;
 
-    @NonNull
+    @Size(max = 5000, message = "Text should not be more than 5000 characters long!")
     private String text;
 
-    @NonNull
     private UUID userId;
 
     public NoteDTO(Note note){
