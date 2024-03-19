@@ -53,21 +53,21 @@ public class NoteControllerUnitTests {
     @Test
     @WithUserDetails
     public void addNoteReturns201(){
-        Mockito.when(noteService.save(any())).thenReturn(Mono.empty());
+        Mockito.when(noteService.save(any(),any())).thenReturn(Mono.empty());
         webTestClient.post().uri("/notes").bodyValue(new NoteDTO(Note.builder().title("Title").text("Text").build())).exchange().expectStatus().isCreated();
     }
 
     @Test
     @WithUserDetails
     public void editingNoteReturns200(){
-        Mockito.when(noteService.edit(any(),any())).thenReturn(Mono.empty());
-        webTestClient.put().uri("/notes/" + noteId).bodyValue(new NoteDTO(Note.builder().title("Title").text("Text").build())).exchange().expectStatus().isOk();
+        Mockito.when(noteService.edit(any(),any(),any())).thenReturn(Mono.empty());
+        webTestClient.put().uri("/notes/" + noteId).bodyValue(new NoteDTO()).exchange().expectStatus().isOk();
     }
 
     @Test
     @WithUserDetails
     public void deletingNoteReturns200(){
-        Mockito.when(noteService.deleteById(any())).thenReturn(Mono.empty());
+        Mockito.when(noteService.deleteById(any(),any())).thenReturn(Mono.empty());
         webTestClient.delete().uri("/notes/" + noteId).exchange().expectStatus().isOk();
     }
 
