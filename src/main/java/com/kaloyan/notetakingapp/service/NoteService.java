@@ -11,7 +11,7 @@ public interface NoteService {
     Mono<NoteDTO> findById(UUID uuid);
 
     Flux<NoteDTO> findAll(Pageable pageable);
-  
+
     Mono<NoteDTO> save(NoteDTO noteDTO, Mono<String> authenticatedUsername);
 
     Mono<NoteDTO> edit(UUID uuid, NoteDTO noteDTO, Mono<String> authenticatedUsername);
