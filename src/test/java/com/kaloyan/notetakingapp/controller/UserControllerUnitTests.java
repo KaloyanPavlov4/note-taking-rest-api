@@ -69,14 +69,14 @@ public class UserControllerUnitTests {
     @Test
     @WithUserDetails
     public void deletingUserReturns200(){
-        Mockito.when(userService.deleteById(any(),any())).thenReturn(Flux.empty());
+        Mockito.when(userService.deleteById(any())).thenReturn(Flux.empty());
         webTestClient.delete().uri("/users/" + userId).exchange().expectStatus().isOk();
     }
 
     @Test
     @WithUserDetails
     public void patchingUsernameReturns200(){
-        Mockito.when(userService.patchUsername(any(),any(),any())).thenReturn(Mono.empty());
+        Mockito.when(userService.patchUsername(any(),any())).thenReturn(Mono.empty());
         webTestClient.patch().uri("/users/" + userId).bodyValue(new HashMap<String,String>()).exchange().expectStatus().isOk();
     }
 
