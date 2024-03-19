@@ -2,7 +2,6 @@ package com.kaloyan.notetakingapp.service;
 
 import com.kaloyan.notetakingapp.dto.UserDTO;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.Authentication;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -14,8 +13,8 @@ public interface UserService {
     Flux<UserDTO> findAll(Pageable pageable);
 
     Mono<UserDTO> save(UserDTO userDTO);
+  
+    Mono<UserDTO> patchUsername(UUID uuid, String username, Mono<String> authenticatedUsername);
 
-    Mono<UserDTO> patchUsername(UUID uuid, String username, Mono<String> currentUser);
-
-    Flux<Void> deleteById(UUID uuid, Mono<String> currentUser);
+    Flux<Void> deleteById(UUID uuid, Mono<String> authenticatedUsername);
 }
