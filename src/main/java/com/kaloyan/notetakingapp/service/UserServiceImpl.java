@@ -1,5 +1,6 @@
 package com.kaloyan.notetakingapp.service;
 
+import com.kaloyan.notetakingapp.config.SecurityUtils;
 import com.kaloyan.notetakingapp.dto.UserDTO;
 import com.kaloyan.notetakingapp.exception.DifferentUserException;
 import com.kaloyan.notetakingapp.model.Role;
@@ -56,8 +57,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Mono<UserDTO> patchUsername(UUID uuid, String username, Mono<String> authenticatedUsername) {
-        return authenticatedUsername.flatMap(authUser -> userRepository.findById(uuid).flatMap(u -> {
+    public Mono<UserDTO> patchUsername(UUID uuid, String username) {
+        return SecurityUtils.authenticatedUsername().flatMap(authUser -> userRepository.findById(uuid).flatMap(u -> {
             if (!u.getUsername().equals(authUser)) {
                 throw new DifferentUserException("Users are forbidden from changing other Users!");
             }
@@ -67,8 +68,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Flux<Void> deleteById(UUID uuid, Mono<String> authenticatedUsername) {
-        return authenticatedUsername.flatMapMany(username -> userRepository.findById(uuid).flatMapMany(u -> {
+    public Flux<Void> deleteById(UUID uuid) {
+        return SecurityUtils.authenticatedUsername().flatMapMany(username -> userRepository.findById(uuid).flatMapMany(u -> {
                     if (!u.getUsername().equals(username)) {
                         throw new DifferentUserException("Users are forbidden from deleting other Users!");
                     }
