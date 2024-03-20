@@ -74,7 +74,7 @@ public class UserServiceImpl implements UserService {
                     if (!u.getUsername().equals(username)) {
                         throw new DifferentUserException("Users are forbidden from deleting other Users!");
                     }
-                    return Flux.merge(noteRepository.deleteAllNotesByUser(uuid), userRepository.deleteById(uuid));
+                    return Flux.merge(noteRepository.deleteByUserId(uuid), userRepository.deleteById(uuid));
                 }
         ));
     }

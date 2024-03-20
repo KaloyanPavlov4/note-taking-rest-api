@@ -14,6 +14,5 @@ public interface NoteRepository extends ReactiveCrudRepository<Note, UUID> {
     //@Query("select * from notes where user_Id=$1")
     Flux<Note> findByUserId(UUID userId);
 
-    @Query("delete from notes where user_Id=$1")
-    Mono<Void> deleteAllNotesByUser(UUID userId);
+    Mono<Void> deleteByUserId(UUID userId);
 }

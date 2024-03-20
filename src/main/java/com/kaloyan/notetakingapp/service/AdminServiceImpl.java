@@ -27,7 +27,7 @@ public class AdminServiceImpl implements AdminService{
             if(user.getRole().equals(Role.ROLE_ADMIN)){
                 throw new AccessDeniedException("Admins cannot delete other admins!");
             }
-            return Flux.merge(noteRepository.deleteAllNotesByUser(userId), userRepository.deleteById(userId));
+            return Flux.merge(noteRepository.deleteByUserId(userId), userRepository.deleteById(userId));
         });
     }
 
