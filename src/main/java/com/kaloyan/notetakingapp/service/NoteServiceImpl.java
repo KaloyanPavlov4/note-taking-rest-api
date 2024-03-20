@@ -74,6 +74,5 @@ public class NoteServiceImpl implements NoteService {
             }
             return noteRepository.deleteById(uuid);
         }));
-
     }
 }

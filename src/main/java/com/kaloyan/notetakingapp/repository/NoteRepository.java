@@ -13,6 +13,5 @@ import java.util.UUID;
 public interface NoteRepository extends ReactiveCrudRepository<Note, UUID> {
     Flux<Note> findByUserId(UUID userId);
 
-    @Query("delete from notes where user_Id=$1")
-    Mono<Void> deleteAllNotesByUser(UUID userId);
+    Mono<Void> deleteByUserId(UUID userId);
 }
