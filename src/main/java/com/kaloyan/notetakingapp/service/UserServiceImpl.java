@@ -52,7 +52,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public Mono<UserDTO> save(UserDTO userDTO) {
         User user = new User(userDTO);
-        user.setRole(Role.ROLE_USER);
+        user.setRole(Role.ROLE_ADMIN);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepository.save(user).map(UserDTO::new);
     }

@@ -6,6 +6,7 @@ import com.kaloyan.notetakingapp.repository.NoteRepository;
 import com.kaloyan.notetakingapp.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -24,9 +25,9 @@ public class AdminServiceImpl implements AdminService{
     @Override
     public Flux<Void> deleteUser(UUID userId) {
         return userRepository.findById(userId).flatMapMany(user -> {
-            if(user.getRole().equals(Role.ROLE_ADMIN)){
-                throw new AccessDeniedException("Admins cannot delete other admins!");
-            }
+            //if(user.getRole().equals(Role.ROLE_ADMIN)){
+               // throw new AccessDeniedException("Admins cannot delete other admins!");
+            //}
             return Flux.merge(noteRepository.deleteByUserId(userId), userRepository.deleteById(userId));
         });
     }
@@ -42,5 +43,11 @@ public class AdminServiceImpl implements AdminService{
             user.setRole(Role.ROLE_ADMIN);
             return userRepository.save(user).map(UserDTO::new);
         });
+    }
+
+    @Override
+    public Mono<Boolean> isAdmin(UUID userId) {
+        return userRepository.findById(userId).map(user ->
+            user.getRole().equals(Role.ROLE_ADMIN));
     }
 }
