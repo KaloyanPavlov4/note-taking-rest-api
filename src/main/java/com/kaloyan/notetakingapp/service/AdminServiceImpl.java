@@ -13,7 +13,7 @@ import reactor.core.publisher.Mono;
 import java.util.UUID;
 
 @Service
-public class AdminServiceImpl implements AdminService{
+public class AdminServiceImpl implements AdminService {
 
     @Autowired
     UserRepository userRepository;
@@ -23,12 +23,7 @@ public class AdminServiceImpl implements AdminService{
 
     @Override
     public Flux<Void> deleteUser(UUID userId) {
-        return userRepository.findById(userId).flatMapMany(user -> {
-            if(user.getRole().equals(Role.ROLE_ADMIN)){
-                throw new AccessDeniedException("Admins cannot delete other admins!");
-            }
-            return Flux.merge(noteRepository.deleteByUserId(userId), userRepository.deleteById(userId));
-        });
+        return Flux.merge(noteRepository.deleteByUserId(userId), userRepository.deleteById(userId));
     }
 
     @Override
@@ -42,5 +37,10 @@ public class AdminServiceImpl implements AdminService{
             user.setRole(Role.ROLE_ADMIN);
             return userRepository.save(user).map(UserDTO::new);
         });
+    }
+
+    @Override
+    public Mono<Boolean> isNotAdmin(UUID userId) {
+        return userRepository.findById(userId).map(user -> !user.getRole().equals(Role.ROLE_ADMIN));
     }
 }
