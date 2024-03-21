@@ -11,6 +11,7 @@ import java.util.UUID;
 
 @Repository
 public interface NoteRepository extends ReactiveCrudRepository<Note, UUID> {
+
     Flux<Note> findByUserId(UUID userId);
 
     Mono<Void> deleteByUserId(UUID userId);
