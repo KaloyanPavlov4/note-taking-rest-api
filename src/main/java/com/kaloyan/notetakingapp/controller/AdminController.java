@@ -4,6 +4,7 @@ import com.kaloyan.notetakingapp.dto.UserDTO;
 import com.kaloyan.notetakingapp.service.AdminService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,6 +23,7 @@ public class AdminController {
     @Autowired
     AdminService adminService;
 
+    @PreAuthorize("@adminServiceImpl.isNotAdmin(#userId)")
     @DeleteMapping("/users/{id}")
     public Flux<Void> deleteUser(@PathVariable("id") UUID userId) {
         return adminService.deleteUser(userId);
