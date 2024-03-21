@@ -5,7 +5,6 @@ import com.kaloyan.notetakingapp.model.Role;
 import com.kaloyan.notetakingapp.repository.NoteRepository;
 import com.kaloyan.notetakingapp.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;

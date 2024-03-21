@@ -1,5 +1,6 @@
 package com.kaloyan.notetakingapp.service;
 
+import com.kaloyan.notetakingapp.config.SecurityUtils;
 import com.kaloyan.notetakingapp.dto.UserDTO;
 import com.kaloyan.notetakingapp.exception.DifferentUserException;
 import com.kaloyan.notetakingapp.model.User;
@@ -10,6 +11,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -17,22 +20,21 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-
 import java.util.ArrayList;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-
 
 @SpringBootTest
 @ExtendWith(MockitoExtension.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class UserServiceUnitTests {
 
-    private final UserRepository userRepository = mock(UserRepository.class);
+    @Mock
+    private UserRepository userRepository;
 
-    private final NoteRepository noteRepository = mock(NoteRepository.class);
+    @Mock
+    private NoteRepository noteRepository;
 
     @InjectMocks
     private UserServiceImpl userService;
@@ -45,13 +47,13 @@ public class UserServiceUnitTests {
     public void init() {
         userId = UUID.randomUUID();
         user = User.builder().id(userId).email("email").username("username").password("password").notes(new ArrayList<>()).build();
-
-        Mockito.when(userRepository.findById(userId)).thenReturn(Mono.just(user));
-        Mockito.when(noteRepository.findByUserId(userId)).thenReturn(Flux.fromIterable(new ArrayList<>()));
     }
 
     @Test
     public void findByIdReturnsUserDTO(){
+        Mockito.when(userRepository.findById(userId)).thenReturn(Mono.just(user));
+        Mockito.when(noteRepository.findByUserId(userId)).thenReturn(Flux.fromIterable(new ArrayList<>()));
+
         Mono<UserDTO> returnedUser = userService.findById(userId);
         StepVerifier
                 .create(returnedUser).expectNextMatches(userDTO -> userDTO.getId().equals(user.getId()))
@@ -60,22 +62,37 @@ public class UserServiceUnitTests {
 
     @Test
     public void changingUsernameByDifferentUserThrowsException(){
-        /*Mono<UserDTO> returned = userService.patchUsername(user.getId(),"user",Mono.just("differentUsername"));
-        StepVerifier.create(returned).expectErrorMatches(throwable -> throwable instanceof DifferentUserException).verify();*/
+        try(MockedStatic<SecurityUtils> utilities = Mockito.mockStatic(SecurityUtils.class)){
+            utilities.when(SecurityUtils::authenticatedUsername).thenReturn(Mono.just("differentUsername"));
+            Mockito.when(userRepository.findById(userId)).thenReturn(Mono.just(user));
+
+            Mono<UserDTO> returned = userService.patchUsername(user.getId(),"user");
+            StepVerifier.create(returned).expectErrorMatches(throwable -> throwable instanceof DifferentUserException).verify();
+        }
     }
 
     @Test
     public void changingUsernameReturnsUpdatedUserDTO(){
-        Mockito.when(userRepository.save(any(User.class))).thenAnswer(i -> Mono.just(i.getArguments()[0]));
+        try(MockedStatic<SecurityUtils> utilities = Mockito.mockStatic(SecurityUtils.class)){
+            utilities.when(SecurityUtils::authenticatedUsername).thenReturn(Mono.just("username"));
+            Mockito.when(userRepository.findById(userId)).thenReturn(Mono.just(user));
+            Mockito.when(noteRepository.findByUserId(userId)).thenReturn(Flux.fromIterable(new ArrayList<>()));
+            Mockito.when(userRepository.save(any(User.class))).thenAnswer(i -> Mono.just(i.getArguments()[0]));
 
-        /*Mono<UserDTO> returnedUserDTO = userService.patchUsername(userId,"newUsername", Mono.just("username"));
-        StepVerifier.create(returnedUserDTO).expectNextMatches(userDTO -> userDTO.getUsername().equals("newUsername")).verifyComplete();
-        user.setUsername("username");*/
+            Mono<UserDTO> returnedUserDTO = userService.patchUsername(userId,"newUsername");
+            StepVerifier.create(returnedUserDTO).expectNextMatches(userDTO -> userDTO.getUsername().equals("newUsername")).verifyComplete();
+            user.setUsername("username");
+        }
     }
 
     @Test
     public void deletingUserByDifferentUserThrowsException(){
-        /*Flux<Void> returned = userService.deleteById(user.getId(),Mono.just("differentUsername"));
-        StepVerifier.create(returned).expectErrorMatches(throwable -> throwable instanceof DifferentUserException).verify();*/
+        try(MockedStatic<SecurityUtils> utilities = Mockito.mockStatic(SecurityUtils.class)){
+            utilities.when(SecurityUtils::authenticatedUsername).thenReturn(Mono.just("differentUsername"));
+            Mockito.when(userRepository.findById(userId)).thenReturn(Mono.just(user));
+
+            Flux<Void> returned = userService.deleteById(user.getId());
+            StepVerifier.create(returned).expectErrorMatches(throwable -> throwable instanceof DifferentUserException).verify();
+        }
     }
 }
