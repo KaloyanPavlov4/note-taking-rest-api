@@ -13,6 +13,6 @@ public interface AdminService {
     Mono<Void> deleteNote(UUID noteId);
 
     Mono<UserDTO> makeUserAdmin(UUID userId);
-
+    
     Mono<Boolean> isNotAdmin(UUID userId);
 }

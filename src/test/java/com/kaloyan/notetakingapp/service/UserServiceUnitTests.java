@@ -67,7 +67,7 @@ public class UserServiceUnitTests {
             Mockito.when(userRepository.findById(userId)).thenReturn(Mono.just(user));
 
             Mono<UserDTO> returned = userService.patchUsername(user.getId(),"user");
-            StepVerifier.create(returned).expectErrorMatches(throwable -> throwable instanceof DifferentUserException).verify();
+            StepVerifier.create(returned).verifyErrorMatches(throwable -> throwable instanceof DifferentUserException);
         }
     }
 
@@ -92,7 +92,7 @@ public class UserServiceUnitTests {
             Mockito.when(userRepository.findById(userId)).thenReturn(Mono.just(user));
 
             Flux<Void> returned = userService.deleteById(user.getId());
-            StepVerifier.create(returned).expectErrorMatches(throwable -> throwable instanceof DifferentUserException).verify();
+            StepVerifier.create(returned).verifyErrorMatches(throwable -> throwable instanceof DifferentUserException);
         }
     }
 }

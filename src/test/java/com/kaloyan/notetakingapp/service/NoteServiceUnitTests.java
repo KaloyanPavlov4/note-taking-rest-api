@@ -97,7 +97,7 @@ public class NoteServiceUnitTests {
 
             Mono<NoteDTO> returnedNote = noteService.edit(noteId,new NoteDTO());
             StepVerifier
-                    .create(returnedNote).expectErrorMatches(throwable -> throwable instanceof DifferentUserException).verify();
+                    .create(returnedNote).verifyErrorMatches(throwable -> throwable instanceof DifferentUserException);
         }
     }
 
@@ -110,7 +110,7 @@ public class NoteServiceUnitTests {
 
             Mono<Void> returned = noteService.deleteById(noteId);
             StepVerifier
-                    .create(returned).expectErrorMatches(throwable -> throwable instanceof DifferentUserException).verify();
+                    .create(returned).verifyErrorMatches(throwable -> throwable instanceof DifferentUserException);
         }
     }
 }
