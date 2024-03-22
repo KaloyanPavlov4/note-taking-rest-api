@@ -8,13 +8,14 @@ import reactor.core.publisher.Mono;
 import java.util.UUID;
 
 public interface NoteService {
+
     Mono<NoteDTO> findById(UUID uuid);
 
     Flux<NoteDTO> findAll(Pageable pageable);
 
-    Mono<NoteDTO> save(NoteDTO noteDTO, Mono<String> authenticatedUsername);
+    Mono<NoteDTO> save(NoteDTO noteDTO);
 
-    Mono<NoteDTO> edit(UUID uuid, NoteDTO noteDTO, Mono<String> authenticatedUsername);
+    Mono<NoteDTO> edit(UUID uuid, NoteDTO noteDTO);
 
-    Mono<Void> deleteById(UUID uuid, Mono<String> authenticatedUsername);
+    Mono<Void> deleteById(UUID uuid);
 }
