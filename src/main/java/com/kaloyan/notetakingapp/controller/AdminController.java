@@ -25,7 +25,7 @@ public class AdminController {
 
     @PreAuthorize("@adminServiceImpl.isNotAdmin(#userId)")
     @DeleteMapping("/users/{id}")
-    public Flux<Void> deleteUser(@PathVariable("id") UUID userId) {
+    public Mono<Void> deleteUser(@PathVariable("id") UUID userId) {
         return adminService.deleteUser(userId);
     }
 
