@@ -8,7 +8,7 @@ import java.util.UUID;
 
 public interface AdminService {
 
-    Flux<Void> deleteUser(UUID userId);
+    Mono<Void> deleteUser(UUID userId);
 
     Mono<Void> deleteNote(UUID noteId);
 
