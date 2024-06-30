@@ -21,8 +21,8 @@ public class AdminServiceImpl implements AdminService {
     NoteRepository noteRepository;
 
     @Override
-    public Flux<Void> deleteUser(UUID userId) {
-        return Flux.merge(noteRepository.deleteByUserId(userId), userRepository.deleteById(userId));
+    public Mono<Void> deleteUser(UUID userId) {
+        return userRepository.deleteById(userId).then(noteRepository.deleteByUserId(userId));
     }
 
     @Override

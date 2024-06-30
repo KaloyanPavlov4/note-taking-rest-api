@@ -60,11 +60,11 @@ public class AdminServiceUnitTests {
     }
 
     @Test
-    public void deletingUserReturnsFluxVoid(){
+    public void deletingUserReturnsMonoVoid(){
         Mockito.when(noteRepository.deleteByUserId(userId)).thenReturn(Mono.empty());
         Mockito.when(userRepository.deleteById(userId)).thenReturn(Mono.empty());
-        Flux<Void> returned = adminService.deleteUser(userId);
-        StepVerifier.create(returned).expectNext().expectNext().verifyComplete();
+        Mono<Void> returned = adminService.deleteUser(userId);
+        StepVerifier.create(returned).expectNext().verifyComplete();
     }
 
     @Test
