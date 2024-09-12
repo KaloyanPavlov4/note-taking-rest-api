@@ -1,5 +1,56 @@
 # Note taking REST Api with Spring Webflux + H2 file DB + Security basic auth
-    REST Api for taking notes. Only registered users can post notes and delete them. Supports changing usernames and editing notes. Admins can delete any user (except other admins) and any note. They can also make other users admins.
+    REST API that allows users to post notes which are saved in a database.
+    Users need to register or login before being allowed to add new notes.
+    When logged in users can change their username and delete or edit their notes.
+    Admins can delete notes regardless of their author and can delete any other user who are not also admins.
+    Admins can also grant admin privilege.
+# Project structure
+    ## Main
+        ### Config
+            PageableWebFluxConfiguration - Configures Pagination
+            R2dbcConfig - Configures the database to work with non-blocking reactive drivers
+            SecurityConfig - Configures password encoder and paths which require authentication
+            SecurityUtils - Contains method that returns currently logged in user's username
+            
+        ### Controller
+            AdminController - Handles requests about admins
+            NoteController - Handles requests about notes
+            UserController - Handles requests about users
+            
+        ### DTO
+            NoteDTO
+            UserDTO
+            
+        ### Exception
+            DifferentUserException - Custom exception thrown when a user tries to edit/delete another user's notes
+            
+        ### Model
+            Note - Models the note table in the database
+            Role - Defines User and Admin roles
+            User - Models the user table in the database
+            
+        ### Repository
+            NoteRepository - handles communication between the note table in the database and the application
+            UserRepository - handles communication between the user table in the database and the application
+            
+        ### Service
+            AdminService - Interface for all methods that handle the business logic on admins
+            AdminServiceImpl - Implementation of the interface
+            CustomUserDetailsService - Returns UserDetails from a username
+            NoteService - Interface for all methods that handle the business logic on notes
+            NoteServiceImpl - Implementation of the interface
+            UserService - Interface for all methods that handle the business logic on users
+            UserServiceImpl - Implementation of the interface
+            
+    ## Test - Unit tests
+        ### Service
+            AdminServiceUnitTests
+            NoteServiceUnitTests
+            UserServiceUnitTests
+            
+        ### Controller
+            NoteControllerUnitTests
+            UserControllerUnitTests
 # Paths and Methods
     Server running on port 8080
     ## Users
