@@ -74,3 +74,5 @@
 # Initial DB
     ## Admin account has username = "kaloyan" and password = "1".
     ## Database has no other entries.
+# License
+    ## Distributed under the MIT License. See LICENSE.md for more information.
