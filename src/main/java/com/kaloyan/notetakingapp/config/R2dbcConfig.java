@@ -16,6 +16,7 @@ public class R2dbcConfig {
         return new R2dbcEntityTemplate(connectionFactory);
     }
 
+    //Database schema is kept in resources/schema.sql
     @Bean
     ConnectionFactoryInitializer initializer(ConnectionFactory connectionFactory) {
 

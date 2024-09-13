@@ -25,6 +25,7 @@ public class NoteServiceImpl implements NoteService {
     @Autowired
     NoteRepository noteRepository;
 
+    //Reactive repositories do not support joins so this method is used to populate the user field of the note objects
     private Mono<Note> noteWithUser(UUID noteId) {
         return noteRepository.findById(noteId).flatMap(note -> userRepository.findById(note.getUserId()).map(user -> {
             note.setUser(user);

@@ -17,6 +17,7 @@ public interface AdminService {
     /**
      * SPeL throws exception when trying to get the opposite result of a Mono<Boolean>
      * which is why the method in AdminService is "isNotAdmin" instead of "isAdmin"
+     * so that it can be used with @PreAuthorize annotation
      * */
     Mono<Boolean> isNotAdmin(UUID userId);
 }

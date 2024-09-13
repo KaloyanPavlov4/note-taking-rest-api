@@ -30,6 +30,7 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    //Reactive repositories do not support joins so this method is used to populate the notes field of the user objects
     private Mono<UserDTO> userWithNotes(User user) {
         return noteRepository.findByUserId(user.getId()).collectList().flatMap(notes -> {
             user.setNotes(notes);
