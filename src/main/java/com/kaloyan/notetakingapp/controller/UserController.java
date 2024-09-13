@@ -43,7 +43,7 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
-    public Flux<Void> deleteUser(@PathVariable("id") UUID userId) {
+    public Mono<Void> deleteUser(@PathVariable("id") UUID userId) {
         return userService.deleteById(userId);
     }
 }

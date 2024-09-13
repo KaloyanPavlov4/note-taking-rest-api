@@ -35,6 +35,7 @@ public class SecurityConfig {
 
     private Mono<AuthorizationDecision> isNotAuthenticated(Mono<Authentication> authenticationMono, AuthorizationContext context) {
         return authenticationMono
-                .map(authentication -> new AuthorizationDecision(!authentication.isAuthenticated()));
+                .map(authentication -> new AuthorizationDecision(!authentication.isAuthenticated()))
+                .defaultIfEmpty(new AuthorizationDecision(true));
     }
 }

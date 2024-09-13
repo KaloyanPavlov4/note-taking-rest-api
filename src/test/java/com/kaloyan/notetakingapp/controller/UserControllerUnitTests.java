@@ -69,7 +69,7 @@ public class UserControllerUnitTests {
     @Test
     @WithUserDetails
     public void deletingUserReturns200(){
-        Mockito.when(userService.deleteById(any())).thenReturn(Flux.empty());
+        Mockito.when(userService.deleteById(any())).thenReturn(Mono.empty());
         webTestClient.delete().uri("/users/" + userId).exchange().expectStatus().isOk();
     }
 

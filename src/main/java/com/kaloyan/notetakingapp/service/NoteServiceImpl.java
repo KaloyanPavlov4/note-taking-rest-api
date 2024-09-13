@@ -38,6 +38,7 @@ public class NoteServiceImpl implements NoteService {
         return noteWithUser(uuid).map(NoteDTO::new);
     }
 
+    //Reactive repositories do not support pagination with Pageable so it is done by skipping pageNumber*pageSize entries and then taking pageSize entries
     @Override
     public Flux<NoteDTO> findAll(Pageable pageable) {
         return noteRepository.findAll().flatMap(note -> noteWithUser(note.getId())).map(NoteDTO::new)
