@@ -30,6 +30,7 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    //Reactive repositories do not support joins so this method is used to populate the notes field of the user objects
     private Mono<UserDTO> userWithNotes(User user) {
         return noteRepository.findByUserId(user.getId()).collectList().flatMap(notes -> {
             user.setNotes(notes);
@@ -42,6 +43,7 @@ public class UserServiceImpl implements UserService {
         return userRepository.findById(uuid).flatMap(this::userWithNotes);
     }
 
+    //Reactive repositories do not support pagination with Pageable so it is done by skipping pageNumber*pageSize entries and then taking pageSize entries
     @Override
     public Flux<UserDTO> findAll(Pageable pageable) {
         return userRepository.findAll().flatMap(this::userWithNotes)
@@ -68,12 +70,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Flux<Void> deleteById(UUID uuid) {
-        return SecurityUtils.authenticatedUsername().flatMapMany(username -> userRepository.findById(uuid).flatMapMany(u -> {
+    public Mono<Void> deleteById(UUID uuid) {
+        return SecurityUtils.authenticatedUsername().flatMap(username -> userRepository.findById(uuid).flatMap(u -> {
                     if (!u.getUsername().equals(username)) {
                         throw new DifferentUserException("Users are forbidden from deleting other Users!");
                     }
-                    return Flux.merge(noteRepository.deleteByUserId(uuid), userRepository.deleteById(uuid));
+                    return Mono.when(noteRepository.deleteByUserId(uuid), userRepository.deleteById(uuid));
                 }
         ));
     }

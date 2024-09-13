@@ -91,7 +91,7 @@ public class UserServiceUnitTests {
             utilities.when(SecurityUtils::authenticatedUsername).thenReturn(Mono.just("differentUsername"));
             Mockito.when(userRepository.findById(userId)).thenReturn(Mono.just(user));
 
-            Flux<Void> returned = userService.deleteById(user.getId());
+            Mono<Void> returned = userService.deleteById(user.getId());
             StepVerifier.create(returned).verifyErrorMatches(throwable -> throwable instanceof DifferentUserException);
         }
     }

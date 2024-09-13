@@ -25,6 +25,7 @@ public class NoteServiceImpl implements NoteService {
     @Autowired
     NoteRepository noteRepository;
 
+    //Reactive repositories do not support joins so this method is used to populate the user field of the note objects
     private Mono<Note> noteWithUser(UUID noteId) {
         return noteRepository.findById(noteId).flatMap(note -> userRepository.findById(note.getUserId()).map(user -> {
             note.setUser(user);
@@ -37,6 +38,7 @@ public class NoteServiceImpl implements NoteService {
         return noteWithUser(uuid).map(NoteDTO::new);
     }
 
+    //Reactive repositories do not support pagination with Pageable so it is done by skipping pageNumber*pageSize entries and then taking pageSize entries
     @Override
     public Flux<NoteDTO> findAll(Pageable pageable) {
         return noteRepository.findAll().flatMap(note -> noteWithUser(note.getId())).map(NoteDTO::new)
