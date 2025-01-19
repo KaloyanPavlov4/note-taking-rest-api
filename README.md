@@ -71,8 +71,25 @@ Admins can also grant admin privilege.<br>
         DELETE /admin/users/{id} - Deletes any user except other admins by id.
         DELETE /admin/notes/{id} - Deletes any note.
         POST /admin/users/{id} - Makes user admin.
-# Initial DB
+### Dependencies
+
+* Spring boot webflux
+* Spring boot r2dbc
+* Spring boot security
+* Spring boot security test
+* Spring boot test
+* Spring boot devtools
+* Spring boot 
+* H2 Database
+* Lombok
+
+## Initial DB
 Admin account has username = "kaloyan" and password = "1".<br>
 Database has no other entries.
-# License
+
+## License
 Distributed under the MIT License. See LICENSE.md for more information.
+
+## Authors
+
+[Kaloyan Pavlov](https://github.com/KaloyanPavlov4)
