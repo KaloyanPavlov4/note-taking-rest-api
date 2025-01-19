@@ -76,12 +76,10 @@ Admins can also grant admin privilege.<br>
 * Spring boot webflux
 * Spring boot r2dbc
 * Spring boot security
-* Spring boot security test
-* Spring boot test
-* Spring boot devtools
-* Spring boot 
 * H2 Database
 * Lombok
+* JUnit
+* Mockito
 
 ## Initial DB
 Admin account has username = "kaloyan" and password = "1".<br>
